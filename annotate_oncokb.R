@@ -1,28 +1,8 @@
-#
-# Set ONCOKB_DB_FILE to point to whereever the
-# oncokb database file is installed
-#
-# The following code tries to figure out that
-# locaiton of this script file to get the path
-# implicitly
-#
-
-SDIR=grep("--file=",commandArgs(trailingOnly=F),value=T)
-if(length(SDIR)>0) {
-    SDIR=normalizePath(dirname(gsub("--file=","",SDIR)))
-} else {
-    SDIR="."
-}
-
-ONCOKB_DB_FILE=file.path(SDIR,"data/oncokb.db.v230119.rds")
-
-read_oncokb_db <- function(ofile=ONCOKB_DB_FILE) {
+read_oncokb_db <- function(ofile) {
 
     readRDS(ofile)
 
 }
-
-oncoKbDb=read_oncokb_db()
 
 read_maf <- function(mfile) {
 
@@ -40,7 +20,7 @@ write_maf <- function(omaf,ofile,header=NULL) {
         header=c()
     }
 
-    header=c(header,paste("#argos-annote:",VERSION,"oncodb:",basename(ONCOKB_DB_FILE)))
+    header=c(header,paste("#argos-annote:",VERSION,"oncodb:",basename(oncoKbDb)))
     write(header,ofile)
     write_tsv(omaf,ofile,append=T,col_names=T,na="")
 
@@ -54,7 +34,7 @@ annotate_maf_oncokb <- function(maf) {
     )
 }
 
-VERSION="1.1.1"
+VERSION="1.3.1"
 
 ###############################################################################
 # Dependancies
@@ -69,29 +49,32 @@ suppressPackageStartupMessages({
 ###############################################################################
 
 args=commandArgs(trailing=T)
-if(length(args)<1) {
-    cat("\n   usage: annotate_oncokb.R INPUT_MAF_FILE [OUTPUT_MAF_FILE]\n\n")
+if(length(args)<2) {
+    cat("\n   usage: annotate_oncokb.R ONCOKB_DB_FILE INPUT_MAF_FILE [OUTPUT_MAF_FILE]\n\n")
+    cat("      ONCOKB_DB_FILE  OncoKb database in rds format\n")
+    cat("      INPUT_MAF_FILE  Maf file to annotate\n")
     cat("      OUTPUT_MAF_FILE is optional and if not supplied will be derived\n")
     cat("                      input file name and written in same folder as input\n\n")
     quit()
 }
 
-inputMaf=args[1]
+oncoKbDb=args[1]
+inputMaf=args[2]
 
-if(length(args)==1) {
+if(length(args)==2) {
     outputMaf=gsub("\\.[^.]*$",".oncokb.maf",inputMaf)
 } else {
-    outputMaf=args[2]
+    outputMaf=args[3]
 }
 
 params=list(
     VERSION=VERSION,
-    ONCOKB_DB_FILE=ONCOKB_DB_FILE,
+    ONCOKB_DB_FILE=oncoKbDb,
     inputMaf=inputMaf,
     outputMaf=outputMaf
 )
 
-db=read_oncokb_db()
+db=read_oncokb_db(oncoKbDb)
 maf=read_maf(inputMaf)
 omaf=annotate_maf_oncokb(maf$maf)
 write_maf(omaf,outputMaf,maf$header)
