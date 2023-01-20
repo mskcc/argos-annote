@@ -5,12 +5,15 @@ Various annotation tools for Argos Pipeline
 ```
 usage:
 
-Rscript annotate_oncokb.R INPUT_MAF [OUTPUT_MAF.maf]
+Rscript annotate_oncokb.R DATABASE INPUT_MAF [OUTPUT_MAF]
 
-    INPUT_MAF.maf must be a properly formatted MAF file.
+    DATABASE        Annotation database file
 
-    If OUTPUT_MAF.maf is specific it is used for the output file
-    if not then the OUTPUT_MAF = INPUT_MAF.oncokb.maf
+    INPUT_MAF       must be a properly formatted MAF file.
+
+    OUTPUT_MAF      if specific it is used for the output file
+                    if not then then
+                       OUTPUT_MAF = INPUT_MAF.oncokb.maf
 
     Additionally a file called OUTPUT_MAF.json will be written with
     a list of parameters that were used in the run
